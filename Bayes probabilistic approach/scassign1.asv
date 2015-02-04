@@ -1,0 +1,94 @@
+image = zeros(512,512);
+river = zeros(50,4);
+nonriver = zeros(100,4);
+
+I1=imread('E:\6 Semester\soft computing\Satellite\band1.gif');
+I2=imread('E:\6 Semester\soft computing\Satellite\band2.gif');
+I3=imread('E:\6 Semester\soft computing\Satellite\band3.gif');
+I4=imread('E:\6 Semester\soft computing\Satellite\band4.gif');
+
+mean_r1 = 0;mean_nr1 = 0 ; mean_r2 = 0;mean_nr2 = 0 ; mean_r3 = 0;mean_nr3 = 0 ; mean_r4 = 0;mean_nr4 = 0;
+x = 0; y =0;
+%imshow(I1);
+%[xr,yr] = ginput(50);
+A = [xr,yr];
+
+for i= 1 :50
+     x = int64(xr(i));
+     y = int64(yr(i));
+     f1r(i,1) = I1(x,y); 
+     f2r(i,1) = I2(x,y); 
+     f3r(i,1) = I3(x,y); 
+     f4r(i,1) = I4(x,y);   
+end
+
+mr=[mean(f1r),mean(f2r),mean(f3r),mean(f4r)];
+
+for i = 1 : 50
+    x = int64(xr(i));
+    y = int64(yr(i));
+    % To calculate covariance  
+    river(i,1)= I1(x,y);
+    river(i,2)= I2(x,y);
+    river(i,3)= I3(x,y);
+    river(i,4)= I4(x,y); 
+end
+
+%[xnr,ynr] = ginput(100);
+
+B = [xnr,ynr];
+
+for i= 1 :100
+     x = int64(xnr(i));
+     y = int64(ynr(i));
+     f1nr(i,1) = I1(x,y); 
+     f2nr(i,1) = I2(x,y); 
+     f3nr(i,1) = I3(x,y); 
+     f4nr(i,1) = I4(x,y);   
+end
+
+mr=[mean(f1r),mean(f2r),mean(f3r),mean(f4r)];
+
+for i = 1 : 100
+    x = int64(xnr(i));
+    y = int64(ynr(i));
+    % To calculate covariance  
+    nonriver(i,1)= I1(x,y);
+    nonriver(i,2)= I2(x,y);
+    nonriver(i,3)= I3(x,y);
+    nonriver(i,4)= I4(x,y);
+end
+
+
+mnr = [mean_nr1,mean_nr2,mean_nr3,mean_nr4];
+
+cvr=cov(river);
+cvnr=cov(nonriver);
+inv1=inv(cvnr);
+inv2=inv(cvr);
+det1=det(cvnr);
+det2=det(cvr);
+
+for i=1:512
+    for j=1:512     
+val1=double([I1(i,j),I2(i,j),I3(i,j),I4(i,j)]);
+numr1=(mnr-val1)*inv1;
+numr1=numr1*transpose(mnr-val1);
+deno1=1*(sqrt(det1));
+numr2=(mr-val1)*inv2;
+numr2=numr2*transpose(mr-val1);
+deno2=1*(sqrt(det2));
+connr=(-0.5)*exp(numr1)/deno1;
+conr=(-0.5)*exp(numr2)/deno2;
+    ppnr=0.5*connr;
+    ppr=0.5*conr;
+    if(ppnr>=ppr)
+      image(i,j)=0;
+    else
+       image(i,j)=255;
+    end  
+    end
+end
+    
+imshow(image);
+
